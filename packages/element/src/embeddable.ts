@@ -265,6 +265,69 @@ const parseSoundCloudLink = (
   }
 };
 
+const parseGoogleMapsLink = (
+  url: string,
+): { type: "generic"; embedLink: string } | null => {
+  try {
+    const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
+    const hostname = urlObj.hostname.replace(/^www\./, "");
+
+    const isGoogleMapsHost =
+      hostname === "google.com" || hostname === "maps.google.com";
+    if (!isGoogleMapsHost) {
+      return null;
+    }
+
+    const isGoogleComMapsPath = hostname === "google.com" &&
+      urlObj.pathname.startsWith("/maps");
+    const isMapsGoogleComPath = hostname === "maps.google.com";
+    if (!isGoogleComMapsPath && !isMapsGoogleComPath) {
+      return null;
+    }
+
+    if (urlObj.pathname.startsWith("/maps/embed")) {
+      return {
+        type: "generic",
+        embedLink: `https://www.google.com${urlObj.pathname}${urlObj.search}`,
+      };
+    }
+
+    let query =
+      urlObj.searchParams.get("q") || urlObj.searchParams.get("query") || "";
+
+    if (!query) {
+      const placeMatch = urlObj.pathname.match(/\/(?:maps\/)?place\/([^/]+)/);
+      if (placeMatch?.[1]) {
+        query = decodeURIComponent(placeMatch[1]).replace(/\+/g, " ");
+      }
+    }
+
+    if (!query) {
+      const latLngMatch = urlObj.pathname.match(
+        /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+      );
+      if (latLngMatch?.[1] && latLngMatch[2]) {
+        query = `${latLngMatch[1]},${latLngMatch[2]}`;
+      }
+    }
+
+    if (!query) {
+      query = urlObj.searchParams.get("ll") || "";
+    }
+
+    if (!query) {
+      query = urlObj.toString();
+    }
+
+    return {
+      type: "generic",
+      embedLink: `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`,
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
 const ALLOWED_DOMAINS = new Set([
   "youtube.com",
   "youtu.be",
@@ -286,6 +349,8 @@ const ALLOWED_DOMAINS = new Set([
   "open.spotify.com",
   "soundcloud.com",
   "w.soundcloud.com",
+  "google.com",
+  "maps.google.com",
 ]);
 
 const ALLOW_SAME_ORIGIN = new Set([
@@ -464,6 +529,25 @@ export const getEmbedLink = (
     type = soundCloudLink.type;
     link = soundCloudLink.embedLink;
     aspectRatio = { w: 560, h: 315 };
+    embeddedLinkCache.set(originalLink, {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    });
+    return {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    };
+  }
+
+  const googleMapsLink = parseGoogleMapsLink(link);
+  if (googleMapsLink) {
+    type = googleMapsLink.type;
+    link = googleMapsLink.embedLink;
+    aspectRatio = { w: 560, h: 420 };
     embeddedLinkCache.set(originalLink, {
       link,
       intrinsicSize: aspectRatio,

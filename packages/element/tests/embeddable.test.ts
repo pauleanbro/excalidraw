@@ -373,3 +373,47 @@ describe("SoundCloud embedding", () => {
     ).toBe(true);
   });
 });
+
+describe("Google Maps embedding", () => {
+  it("should convert maps query links to embed format", () => {
+    const url = "https://www.google.com/maps?q=Av.+Paulista,+Sao+Paulo";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(
+        "https://www.google.com/maps?q=Av.%20Paulista%2C%20Sao%20Paulo&output=embed",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 560, h: 420 });
+    }
+  });
+
+  it("should keep existing maps embed links", () => {
+    const url = "https://www.google.com/maps/embed?pb=testEmbedPayload";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(url);
+      expect(result.intrinsicSize).toEqual({ w: 560, h: 420 });
+    }
+  });
+
+  it("should validate google maps domains by default", () => {
+    expect(
+      embeddableURLValidator(
+        "https://www.google.com/maps?q=Av.+Paulista,+Sao+Paulo",
+        undefined,
+      ),
+    ).toBe(true);
+
+    expect(
+      embeddableURLValidator(
+        "https://maps.google.com/?q=Av.+Paulista,+Sao+Paulo",
+        undefined,
+      ),
+    ).toBe(true);
+  });
+});
