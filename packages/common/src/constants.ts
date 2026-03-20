@@ -138,6 +138,10 @@ export const FONT_FAMILY = {
   "Comic Shanns": 8,
   "Liberation Sans": 9,
   Assistant: 10,
+  Inter: 11,
+  Pacifico: 12,
+  Creepster: 13,
+  Bangers: 14,
 };
 
 // Segoe UI Emoji fails to properly fallback for some glyphs: ∞, ∫, ≠
@@ -210,8 +214,8 @@ export const FRAME_STYLE = {
 };
 
 export const MIN_FONT_SIZE = 1;
-export const DEFAULT_FONT_SIZE = 20;
-export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Excalifont;
+export const DEFAULT_FONT_SIZE = 18;
+export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Helvetica;
 export const DEFAULT_TEXT_ALIGN = "left";
 export const DEFAULT_VERTICAL_ALIGN = "top";
 export const DEFAULT_VERSION = "{version}";
@@ -422,7 +426,7 @@ export const DEFAULT_ELEMENT_PROPS: {
   strokeColor: COLOR_PALETTE.black,
   backgroundColor: COLOR_PALETTE.transparent,
   fillStyle: "solid",
-  strokeWidth: 2,
+  strokeWidth: 1,
   strokeStyle: "solid",
   roughness: ROUGHNESS.artist,
   opacity: 100,

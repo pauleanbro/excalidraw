@@ -558,6 +558,13 @@ export const ExcalidrawAPIContext =
   React.createContext<ExcalidrawImperativeAPI | null>(null);
 ExcalidrawAPIContext.displayName = "ExcalidrawAPIContext";
 
+type SocialButtonPayload = {
+  network: string;
+  actionType: "link" | "clipboard";
+  value: string;
+  color: string;
+};
+
 export const ExcalidrawAPISetContext = React.createContext<
   ((api: ExcalidrawImperativeAPI | null) => void) | null
 >(null);
@@ -6668,6 +6675,80 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  private getSocialButtonPayload = (
+    element: ExcalidrawElement | null | undefined,
+  ): SocialButtonPayload | null => {
+    const data = element?.customData?.socialButton;
+    if (!data || typeof data !== "object") {
+      return null;
+    }
+
+    const actionType = data.actionType;
+    const value = data.value;
+    const network = data.network;
+    const color = data.color;
+
+    if (
+      (actionType !== "link" && actionType !== "clipboard") ||
+      typeof value !== "string" ||
+      !value.trim() ||
+      typeof network !== "string" ||
+      typeof color !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      network,
+      actionType,
+      value: value.trim(),
+      color,
+    };
+  };
+
+  private handleSocialButtonClick = (
+    element: NonDeletedExcalidrawElement,
+    event: PointerEvent,
+  ) => {
+    const payload = this.getSocialButtonPayload(element);
+    if (!payload || !this.state.viewModeEnabled) {
+      return false;
+    }
+
+    if (payload.actionType === "clipboard") {
+      void copyTextToSystemClipboard(payload.value).then(() => {
+        this.setToast({
+          message: t("socialButton.copied"),
+          duration: 1800,
+          closable: true,
+        });
+      });
+      return true;
+    }
+
+    const url = normalizeLink(payload.value);
+    let customEvent;
+    if (this.props.onLinkOpen) {
+      customEvent = wrapEvent(EVENT.EXCALIDRAW_LINK, event);
+      this.props.onLinkOpen(
+        {
+          ...element,
+          link: url,
+        },
+        customEvent,
+      );
+    }
+    if (!customEvent?.defaultPrevented) {
+      const target = isLocalLink(url) ? "_self" : "_blank";
+      const newWindow = window.open(undefined, target);
+      if (newWindow) {
+        newWindow.opener = null;
+        newWindow.location = url;
+      }
+    }
+    return true;
+  };
+
   private getTopLayerFrameAtSceneCoords = (sceneCoords: {
     x: number;
     y: number;
@@ -8950,6 +9031,104 @@ class App extends React.Component<AppProps, AppState> {
     return element;
   };
 
+  public insertSocialButtonElement = async ({
+    network,
+    svgMarkup,
+    color,
+    actionType,
+    value,
+    sceneX,
+    sceneY,
+  }: {
+    network: string;
+    svgMarkup: string;
+    color: string;
+    actionType: "link" | "clipboard";
+    value: string;
+    sceneX?: number;
+    sceneY?: number;
+  }) => {
+    const normalizedValue = value.trim();
+    if (!normalizedValue) {
+      return null;
+    }
+
+    if (sceneX == null || sceneY == null) {
+      const clientX = this.state.width / 2 + this.state.offsetLeft;
+      const clientY = this.state.height / 2 + this.state.offsetTop;
+      const centerCoords = viewportCoordsToSceneCoords(
+        { clientX, clientY },
+        this.state,
+      );
+      sceneX = centerCoords.x;
+      sceneY = centerCoords.y;
+    }
+
+    const [gridX, gridY] = getGridPoint(
+      sceneX,
+      sceneY,
+      this.lastPointerDownEvent?.[KEYS.CTRL_OR_CMD]
+        ? null
+        : this.getEffectiveGridSize(),
+    );
+
+    const fileId = `social-btn-${nanoid()}` as FileId;
+    const svgDataURL = getDataURL_sync(normalizeSVG(svgMarkup), MIME_TYPES.svg);
+
+    this.addMissingFiles([
+      {
+        id: fileId,
+        dataURL: svgDataURL,
+        mimeType: MIME_TYPES.svg,
+        created: Date.now(),
+        lastRetrieved: Date.now(),
+      },
+    ]);
+
+    const size = 56;
+
+    const element = newImageElement({
+      type: "image",
+      x: gridX - size / 2,
+      y: gridY - size / 2,
+      width: size,
+      height: size,
+      strokeColor: "transparent",
+      backgroundColor: "transparent",
+      fillStyle: this.state.currentItemFillStyle,
+      strokeWidth: this.state.currentItemStrokeWidth,
+      strokeStyle: this.state.currentItemStrokeStyle,
+      roughness: this.state.currentItemRoughness,
+      roundness: null,
+      opacity: this.state.currentItemOpacity,
+      locked: false,
+      status: "saved",
+      fileId,
+      link: actionType === "link" ? normalizeLink(normalizedValue) : null,
+      customData: {
+        socialButton: {
+          network,
+          actionType,
+          value: normalizedValue,
+          color,
+        } as SocialButtonPayload,
+      },
+    });
+
+    this.scene.insertElement(element);
+    this.scene.triggerUpdate();
+    this.store.scheduleCapture();
+
+    this.setState((prevState) => ({
+      selectedElementIds: makeNextSelectedElementIds(
+        { [element.id]: true },
+        prevState,
+      ),
+    }));
+
+    return element;
+  };
+
   private newImagePlaceholder = ({
     sceneX,
     sceneY,
@@ -11046,6 +11225,14 @@ class App extends React.Component<AppProps, AppState> {
         return;
       } else if (this.elementsPendingErasure.size) {
         this.restoreReadyToEraseElements();
+      }
+
+      if (
+        hitElement &&
+        !pointerDownState.drag.hasOccurred &&
+        this.handleSocialButtonClick(hitElement, childEvent)
+      ) {
+        return;
       }
 
       if (

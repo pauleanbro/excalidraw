@@ -9,8 +9,6 @@ import { t } from "../i18n";
 
 import { isHandToolActive } from "../appState";
 
-import { useTunnels } from "../context/tunnels";
-
 import { HandButton } from "./HandButton";
 import { ToolButton } from "./ToolButton";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
@@ -32,8 +30,7 @@ import {
   EmbedIcon,
   laserPointerToolIcon,
   LassoIcon,
-  mermaidLogoIcon,
-  MagicIcon,
+  socialButtonToolIcon,
 } from "./icons";
 
 import "./ToolIcon.scss";
@@ -122,8 +119,7 @@ export const MobileToolBar = ({
   const frameToolSelected = activeTool.type === "frame";
   const laserToolSelected = activeTool.type === "laser";
   const embeddableToolSelected = activeTool.type === "embeddable";
-
-  const { TTDDialogTriggerTunnel } = useTunnels();
+  const socialButtonDialogOpen = app.state.openDialog?.name === "socialButton";
 
   const handleToolChange = (toolType: string, pointerType?: string) => {
     if (app.state.activeTool.type !== toolType) {
@@ -185,9 +181,9 @@ export const MobileToolBar = ({
       ? EmbedIcon
       : activeTool.type === "laser"
       ? laserPointerToolIcon
-      : activeTool.type === "magicframe"
-      ? MagicIcon
       : extraToolsIcon
+    : socialButtonDialogOpen
+    ? socialButtonToolIcon
     : extraToolsIcon;
 
   return (
@@ -381,7 +377,9 @@ export const MobileToolBar = ({
             "App-toolbar__extra-tools-trigger App-toolbar__extra-tools-trigger--mobile",
             {
               "App-toolbar__extra-tools-trigger--selected":
-                extraToolSelected || isOtherShapesMenuOpen,
+                extraToolSelected ||
+                socialButtonDialogOpen ||
+                isOtherShapesMenuOpen,
             },
           )}
           onToggle={() => {
@@ -447,6 +445,14 @@ export const MobileToolBar = ({
             {t("toolBar.embeddable")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
+            onSelect={() => app.setOpenDialog({ name: "socialButton" })}
+            icon={socialButtonToolIcon}
+            data-testid="toolbar-social-button"
+            selected={socialButtonDialogOpen}
+          >
+            {t("toolBar.socialButton")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
             data-testid="toolbar-laser"
@@ -455,29 +461,6 @@ export const MobileToolBar = ({
           >
             {t("toolBar.laser")}
           </DropdownMenu.Item>
-          <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
-            Generate
-          </div>
-          {app.props.aiEnabled !== false && <TTDDialogTriggerTunnel.Out />}
-          <DropdownMenu.Item
-            onSelect={() => app.setOpenDialog({ name: "ttd", tab: "mermaid" })}
-            icon={mermaidLogoIcon}
-            data-testid="toolbar-embeddable"
-          >
-            {t("toolBar.mermaidToExcalidraw")}
-          </DropdownMenu.Item>
-          {app.props.aiEnabled !== false && app.plugins.diagramToCode && (
-            <>
-              <DropdownMenu.Item
-                onSelect={() => app.onMagicframeToolSelect()}
-                icon={MagicIcon}
-                data-testid="toolbar-magicframe"
-                badge={<DropdownMenu.Item.Badge>AI</DropdownMenu.Item.Badge>}
-              >
-                {t("toolBar.magicframe")}
-              </DropdownMenu.Item>
-            </>
-          )}
         </DropdownMenu.Content>
       </DropdownMenu>
     </div>

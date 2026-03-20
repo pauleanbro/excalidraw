@@ -1,4 +1,8 @@
-import { embeddableURLValidator, getEmbedLink } from "../src/embeddable";
+import {
+  embeddableURLValidator,
+  getEmbedLink,
+  maybeParseEmbedSrc,
+} from "../src/embeddable";
 
 describe("YouTube timestamp parsing", () => {
   it("should parse YouTube URLs with timestamp in seconds", () => {
@@ -226,6 +230,144 @@ describe("Google Drive video embedding", () => {
     expect(
       embeddableURLValidator(
         "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOpQrStUvWxYz123456/view",
+        undefined,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("Instagram embedding", () => {
+  it("should embed profile links", () => {
+    const url = "https://www.instagram.com/pepezada/";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe("https://www.instagram.com/pepezada/embed");
+      expect(result.intrinsicSize).toEqual({ w: 400, h: 700 });
+    }
+  });
+
+  it("should embed post links", () => {
+    const url = "https://www.instagram.com/p/DWCuAQjAPc0/";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(
+        "https://www.instagram.com/p/DWCuAQjAPc0/embed",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 400, h: 480 });
+    }
+  });
+
+  it("should validate instagram domain by default", () => {
+    expect(
+      embeddableURLValidator("https://www.instagram.com/pepezada/", undefined),
+    ).toBe(true);
+  });
+});
+
+describe("Twitter/X embedding", () => {
+  it("should embed post links", () => {
+    const url = "https://x.com/ennntropy/status/1757453315439222839";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("document");
+    if (result?.type === "document") {
+      expect(result.srcdoc("light")).toContain("twitter-tweet");
+      expect(result.srcdoc("light")).toContain(
+        "https://twitter.com/x/status/1757453315439222839",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 480, h: 480 });
+    }
+  });
+});
+
+describe("Spotify embedding", () => {
+  it("should embed intl track links", () => {
+    const url = "https://open.spotify.com/intl-pt/track/4y93vvzu2h8MITw7YyUTcI";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(
+        "https://open.spotify.com/embed/track/4y93vvzu2h8MITw7YyUTcI",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 400, h: 352 });
+    }
+  });
+
+  it("should embed podcast episode links", () => {
+    const url = "https://open.spotify.com/episode/2T6xWQ5tJbX4RldxgM3KxV";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(
+        "https://open.spotify.com/embed/episode/2T6xWQ5tJbX4RldxgM3KxV",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 400, h: 352 });
+    }
+  });
+
+  it("should validate spotify domain by default", () => {
+    expect(
+      embeddableURLValidator(
+        "https://open.spotify.com/intl-pt/track/4y93vvzu2h8MITw7YyUTcI",
+        undefined,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("SoundCloud embedding", () => {
+  it("should embed track links", () => {
+    const url =
+      "https://soundcloud.com/kitten-hvh/k0n3cz-stakillaz-ultra-slowed";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(
+        "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/kitten-hvh/k0n3cz-stakillaz-ultra-slowed&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true",
+      );
+      expect(result.intrinsicSize).toEqual({ w: 560, h: 315 });
+    }
+  });
+
+  it("should preserve official soundcloud player links", () => {
+    const url =
+      "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2188656335&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true";
+    const result = getEmbedLink(url);
+
+    expect(result).toBeTruthy();
+    expect(result?.type).toBe("generic");
+    if (result?.type === "video" || result?.type === "generic") {
+      expect(result.link).toBe(url);
+      expect(result.intrinsicSize).toEqual({ w: 560, h: 315 });
+    }
+  });
+
+  it("should parse iframe snippets that include extra trailing html", () => {
+    const snippet =
+      '<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2188656335&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe><div style="font-size: 10px;">x</div>';
+
+    expect(maybeParseEmbedSrc(snippet)).toBe(
+      "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2188656335&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true",
+    );
+  });
+
+  it("should validate soundcloud domain by default", () => {
+    expect(
+      embeddableURLValidator(
+        "https://soundcloud.com/kitten-hvh/k0n3cz-stakillaz-ultra-slowed",
         undefined,
       ),
     ).toBe(true);

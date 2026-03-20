@@ -1531,10 +1531,10 @@
   resolved "https://registry.yarnpkg.com/@excalidraw/markdown-to-text/-/markdown-to-text-0.1.2.tgz#1703705e7da608cf478f17bfe96fb295f55a23eb"
   integrity sha512-1nDXBNAojfi3oSFwJswKREkFm5wrSjqay81QlyRv2pkITG/XYB5v+oChENVBQLcxQwX4IUATWvXM5BcaNhPiIg==
 
-"@excalidraw/mermaid-to-excalidraw@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@excalidraw/mermaid-to-excalidraw/-/mermaid-to-excalidraw-2.1.0.tgz#a5b9cf87c3185558cda7f9687d87b9937f452358"
-  integrity sha512-RMd+c2b7WzzUjhERMpKwp8PhF2/XlHDjr/zK+Gxfp8K9sVlafPYJ5OEa/GkN6edi2rBUXRfW+41WdO6L56b6Kw==
+"@excalidraw/mermaid-to-excalidraw@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@excalidraw/mermaid-to-excalidraw/-/mermaid-to-excalidraw-2.1.1.tgz#659c934a607dd2cf57f2a69282588ee2b0722959"
+  integrity sha512-jU+frqcxazsY+t5yOBf2mgrQy+WUrbrzA36if3SQB/Vwaf2qOJjnWxucNafgZZk/3+9xGmRotUeOviSOJG+wYA==
   dependencies:
     "@excalidraw/markdown-to-text" "0.1.2"
     "@mermaid-js/parser" "^0.6.3"
@@ -2019,6 +2019,11 @@
     "@antfu/install-pkg" "^1.1.0"
     "@iconify/types" "^2.0.0"
     mlly "^1.8.0"
+
+"@icons-pack/react-simple-icons@13.13.0":
+  version "13.13.0"
+  resolved "https://registry.yarnpkg.com/@icons-pack/react-simple-icons/-/react-simple-icons-13.13.0.tgz#71cf5f87809a2098506108960bdc746011c21bf5"
+  integrity sha512-B5HhQMIpcSH4z8IZ8HFhD59CboHceKYMpPC9kAwGyKntvPdyJJv26DLu4Z1wAjcCLyrJhf11tMhiQGom9Rxb9g==
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -7774,6 +7779,11 @@ lru-cache@^6.0.0:
   integrity sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==
   dependencies:
     yallist "^4.0.0"
+
+lucide-react@^0.469.0:
+  version "0.469.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.469.0.tgz#f16936ca6521482fef754a7eabb310e6c68e1482"
+  integrity sha512-28vvUnnKQ/dBwiCQtwJw7QauYnE7yd2Cyp4tTTJpvglX4EMpbflcdBgrgToX2j71B3YvugK/NH3BGUk+E/p/Fw==
 
 lz-string@^1.5.0:
   version "1.5.0"

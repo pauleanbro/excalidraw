@@ -31,7 +31,7 @@ export type JSONExportData = {
 /**
  * Strips out files which are only referenced by deleted elements
  */
-const filterOutDeletedFiles = (
+export const filterOutDeletedFiles = (
   elements: readonly ExcalidrawElement[],
   files: BinaryFiles,
 ) => {

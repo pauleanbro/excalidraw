@@ -305,3 +305,15 @@ export const exportToBackend = async (
     return { url: null, errorMessage: t("alerts.couldNotCreateShareableLink") };
   }
 };
+
+export {
+  ScenePersistenceAdapter,
+  prepareSceneForSave,
+  toExcalidrawInitialData,
+} from "./ScenePersistenceAdapter";
+export type {
+  PersistedSceneData,
+  PersistedSceneRecord,
+  SceneSaveInput,
+  PrepareSceneForSaveOptions,
+} from "./ScenePersistenceAdapter";

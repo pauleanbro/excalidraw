@@ -291,6 +291,10 @@ export { isInvisiblySmallElement } from "@excalidraw/element";
 
 export { defaultLang, useI18n, languages } from "./i18n";
 export {
+  clearAppStateForDatabase,
+  clearAppStateForLocalStorage,
+} from "./appState";
+export {
   restoreAppState,
   restoreElement,
   restoreElements,
@@ -306,7 +310,11 @@ export {
   exportToClipboard,
 } from "@excalidraw/utils/export";
 
-export { serializeAsJSON, serializeLibraryAsJSON } from "./data/json";
+export {
+  serializeAsJSON,
+  serializeLibraryAsJSON,
+  filterOutDeletedFiles,
+} from "./data/json";
 export {
   loadFromBlob,
   loadSceneOrLibraryFromBlob,

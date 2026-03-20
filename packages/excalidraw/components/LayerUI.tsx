@@ -60,6 +60,7 @@ import { ImageExportDialog } from "./ImageExportDialog";
 import { Island } from "./Island";
 import { JSONExportDialog } from "./JSONExportDialog";
 import { LaserPointerButton } from "./LaserPointerButton";
+import { SocialButtonDialog } from "./SocialButtonDialog";
 import { Toast } from "./Toast";
 
 import "./LayerUI.scss";
@@ -411,13 +412,6 @@ const LayerUI = ({
               editorInterface.formFactor === "phone",
               appState,
             )}
-            {!appState.viewModeEnabled &&
-              appState.openDialog?.name !== "elementLinkSelector" &&
-              // hide button when sidebar docked
-              (!isSidebarDocked ||
-                appState.openSidebar?.name !== DEFAULT_SIDEBAR.name) && (
-                <tunnels.DefaultSidebarTriggerTunnel.Out />
-              )}
             {shouldShowStats && (
               <Stats
                 app={app}
@@ -538,6 +532,12 @@ const LayerUI = ({
           onClose={() => {
             setAppState({ openDialog: null });
           }}
+        />
+      )}
+      {appState.openDialog?.name === "socialButton" && (
+        <SocialButtonDialog
+          app={app}
+          onClose={() => setAppState({ openDialog: null })}
         />
       )}
       <ActiveConfirmDialog />

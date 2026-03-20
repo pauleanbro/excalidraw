@@ -65,6 +65,38 @@ export const FONT_METADATA: Record<number, FontMetadata> = {
       lineHeight: 1.25,
     },
   },
+  [FONT_FAMILY.Inter]: {
+    metrics: {
+      unitsPerEm: 2048,
+      ascender: 1984,
+      descender: -494,
+      lineHeight: 1.2,
+    },
+  },
+  [FONT_FAMILY.Pacifico]: {
+    metrics: {
+      unitsPerEm: 1000,
+      ascender: 1303,
+      descender: -453,
+      lineHeight: 1.35,
+    },
+  },
+  [FONT_FAMILY.Creepster]: {
+    metrics: {
+      unitsPerEm: 1000,
+      ascender: 1185,
+      descender: -353,
+      lineHeight: 1.25,
+    },
+  },
+  [FONT_FAMILY.Bangers]: {
+    metrics: {
+      unitsPerEm: 1000,
+      ascender: 1141,
+      descender: -330,
+      lineHeight: 1.2,
+    },
+  },
   [FONT_FAMILY.Virgil]: {
     metrics: {
       unitsPerEm: 1000,

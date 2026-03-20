@@ -7,6 +7,7 @@ import fallbackLangData from "./locales/en.json";
 import percentages from "./locales/percentages.json";
 
 const COMPLETION_THRESHOLD = 85;
+const FORCED_ENABLED_LANGUAGE_CODES = new Set(["pt-BR", "pt-PT"]);
 
 export interface Language {
   code: string;
@@ -68,6 +69,7 @@ export const languages: Language[] = [
   ]
     .filter(
       (lang) =>
+        FORCED_ENABLED_LANGUAGE_CODES.has(lang.code) ||
         (percentages as Record<string, number>)[lang.code] >=
         COMPLETION_THRESHOLD,
     )

@@ -324,6 +324,7 @@
     "frame": "Frame tool",
     "magicframe": "Wireframe to code",
     "embeddable": "Web Embed",
+    "socialButton": "Social button",
     "laser": "Laser pointer",
     "hand": "Hand (panning tool)",
     "extraTools": "More tools",
@@ -396,6 +397,21 @@
   },
   "shareDialog": {
     "or": "Or"
+  },
+  "socialButton": {
+    "title": "Social button",
+    "description": "Create an icon-only social button and choose what happens on click.",
+    "network": "Social network",
+    "action": "Click action",
+    "link": "Open link",
+    "clipboard": "Copy to clipboard",
+    "linkValue": "Link URL",
+    "clipboardValue": "Text to copy",
+    "linkPlaceholder": "https://...",
+    "clipboardPlaceholder": "@username",
+    "color": "Icon color",
+    "add": "Add to canvas",
+    "copied": "Copied to clipboard"
   },
   "roomDialog": {
     "desc_intro": "Invite people to collaborate on your drawing.",

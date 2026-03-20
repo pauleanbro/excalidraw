@@ -75,7 +75,11 @@ const getFontFamilyIcon = (fontFamily: FontFamilyValues): JSX.Element => {
       return FreedrawIcon;
     case FONT_FAMILY.Nunito:
     case FONT_FAMILY.Helvetica:
+    case FONT_FAMILY.Inter:
       return FontFamilyNormalIcon;
+    case FONT_FAMILY.Pacifico:
+    case FONT_FAMILY.Creepster:
+    case FONT_FAMILY.Bangers:
     case FONT_FAMILY["Lilita One"]:
       return FontFamilyHeadingIcon;
     case FONT_FAMILY["Comic Shanns"]:
@@ -108,7 +112,10 @@ export const FontPickerList = React.memo(
       () =>
         Array.from(Fonts.registered.entries())
           .filter(
-            ([_, { metadata }]) => !metadata.private && !metadata.fallback,
+            ([fontFamily, { metadata }]) =>
+              !metadata.private &&
+              !metadata.fallback &&
+              fontFamily !== FONT_FAMILY.Excalifont,
           )
           .map(([familyId, { metadata, fontFaces }]) => {
             const fontDescriptor = {

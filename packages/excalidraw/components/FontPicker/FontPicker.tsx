@@ -12,7 +12,6 @@ import { ButtonSeparator } from "../ButtonSeparator";
 import {
   FontFamilyCodeIcon,
   FontFamilyNormalIcon,
-  FreedrawIcon,
 } from "../icons";
 
 import { FontPickerList } from "./FontPickerList";
@@ -21,12 +20,6 @@ import { FontPickerTrigger } from "./FontPickerTrigger";
 import "./FontPicker.scss";
 
 export const DEFAULT_FONTS = [
-  {
-    value: FONT_FAMILY.Excalifont,
-    icon: FreedrawIcon,
-    text: t("labels.handDrawn"),
-    testId: "font-family-hand-drawn",
-  },
   {
     value: FONT_FAMILY.Nunito,
     icon: FontFamilyNormalIcon,

@@ -46,6 +46,8 @@ const RE_VALTOWN =
 
 const RE_GENERIC_EMBED =
   /^<(?:iframe|blockquote)[\s\S]*?\s(?:src|href)=["']([^"']*)["'][\s\S]*?>$/i;
+const RE_GENERIC_IFRAME_SRC =
+  /<iframe[\s\S]*?\ssrc=["']([^"']*)["'][\s\S]*?>/i;
 
 const RE_GIPHY =
   /giphy.com\/(?:clips|embed|gifs)\/[a-zA-Z0-9]*?-?([a-zA-Z0-9]+)(?:[^a-zA-Z0-9]|$)/;
@@ -55,6 +57,8 @@ const RE_REDDIT =
 
 const RE_REDDIT_EMBED =
   /^<blockquote[\s\S]*?\shref=["'](https?:\/\/(?:www\.)?reddit\.com\/[^"']*)/i;
+const RE_INSTAGRAM_EMBED =
+  /^<blockquote[\s\S]*?data-instgrm-permalink=["'](https?:\/\/(?:www\.)?instagram\.com\/[^"']*)/i;
 
 const parseYouTubeLikeTimestamp = (url: string): number => {
   let timeParam: string | null | undefined;
@@ -130,6 +134,137 @@ const parseGoogleDriveVideoLink = (
   }
 };
 
+
+const parseInstagramLink = (
+  url: string,
+): { type: "post" | "profile"; embedLink: string } | null => {
+  try {
+    const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
+    const hostname = urlObj.hostname.replace(/^www\./, "");
+    if (hostname !== "instagram.com") {
+      return null;
+    }
+
+    const segments = urlObj.pathname.split("/").filter(Boolean);
+    if (segments.length === 0) {
+      return null;
+    }
+
+    const firstSegment = segments[0];
+    const secondSegment = segments[1];
+
+    if (
+      ["p", "reel", "tv"].includes(firstSegment) &&
+      secondSegment &&
+      /^[a-zA-Z0-9_-]+$/.test(secondSegment)
+    ) {
+      return {
+        type: "post",
+        embedLink: `https://www.instagram.com/${firstSegment}/${secondSegment}/embed`,
+      };
+    }
+
+    if (segments.length === 1 && /^[a-zA-Z0-9._]+$/.test(firstSegment)) {
+      return {
+        type: "profile",
+        embedLink: `https://www.instagram.com/${firstSegment}/embed`,
+      };
+    }
+  } catch (error) {
+    return null;
+  }
+
+  return null;
+};
+
+const parseSpotifyLink = (
+  url: string,
+): { type: "generic"; embedLink: string } | null => {
+  try {
+    const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
+    const hostname = urlObj.hostname.replace(/^www\./, "");
+    if (hostname !== "open.spotify.com") {
+      return null;
+    }
+
+    const supportedTypes = new Set([
+      "track",
+      "album",
+      "artist",
+      "playlist",
+      "show",
+      "episode",
+    ]);
+
+    let segments = urlObj.pathname.split("/").filter(Boolean);
+
+    // Handles localized links such as /intl-pt/track/<id>.
+    if (segments[0]?.startsWith("intl-")) {
+      segments = segments.slice(1);
+    }
+
+    const [contentType, contentId] = segments;
+    if (
+      !contentType ||
+      !contentId ||
+      !supportedTypes.has(contentType) ||
+      !/^[a-zA-Z0-9]+$/.test(contentId)
+    ) {
+      return null;
+    }
+
+    return {
+      type: "generic",
+      embedLink: `https://open.spotify.com/embed/${contentType}/${contentId}`,
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
+const parseSoundCloudLink = (
+  url: string,
+): { type: "generic"; embedLink: string } | null => {
+  try {
+    const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
+    const hostname = urlObj.hostname.replace(/^www\./, "");
+    if (hostname !== "soundcloud.com" && hostname !== "w.soundcloud.com") {
+      return null;
+    }
+
+    if (hostname === "w.soundcloud.com" && urlObj.pathname.startsWith("/player")) {
+      return {
+        type: "generic",
+        embedLink: urlObj.toString(),
+      };
+    }
+
+    const segments = urlObj.pathname.split("/").filter(Boolean);
+    if (segments.length < 2) {
+      return null;
+    }
+
+    const canonicalTrackUrl = `https://soundcloud.com${urlObj.pathname}${
+      urlObj.search || ""
+    }`;
+    const encodedTrackUrl = encodeURIComponent(canonicalTrackUrl).replace(
+      /%2F/g,
+      "/",
+    );
+    const embedLink =
+      `https://w.soundcloud.com/player/?url=${encodedTrackUrl}` +
+      `&color=%23ff5500&auto_play=false&hide_related=false` +
+      `&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`;
+
+    return {
+      type: "generic",
+      embedLink,
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
 const ALLOWED_DOMAINS = new Set([
   "youtube.com",
   "youtu.be",
@@ -147,6 +282,10 @@ const ALLOWED_DOMAINS = new Set([
   "giphy.com",
   "reddit.com",
   "forms.microsoft.com",
+  "instagram.com",
+  "open.spotify.com",
+  "soundcloud.com",
+  "w.soundcloud.com",
 ]);
 
 const ALLOW_SAME_ORIGIN = new Set([
@@ -162,6 +301,9 @@ const ALLOW_SAME_ORIGIN = new Set([
   "stackblitz.com",
   "reddit.com",
   "forms.microsoft.com",
+  "instagram.com",
+  "open.spotify.com",
+  "w.soundcloud.com",
 ]);
 
 export const createSrcDoc = (body: string) => {
@@ -263,6 +405,64 @@ export const getEmbedLink = (
     link = `https://drive.google.com/file/d/${googleDriveVideo.fileId}/preview${
       search ? `?${search}` : ""
     }`;
+    aspectRatio = { w: 560, h: 315 };
+    embeddedLinkCache.set(originalLink, {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    });
+    return {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    };
+  }
+
+  const instagramLink = parseInstagramLink(link);
+  if (instagramLink) {
+    type = "generic";
+    link = instagramLink.embedLink;
+    aspectRatio =
+      instagramLink.type === "post" ? { w: 400, h: 480 } : { w: 400, h: 700 };
+    embeddedLinkCache.set(originalLink, {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    });
+    return {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    };
+  }
+
+  const spotifyLink = parseSpotifyLink(link);
+  if (spotifyLink) {
+    type = spotifyLink.type;
+    link = spotifyLink.embedLink;
+    aspectRatio = { w: 400, h: 352 };
+    embeddedLinkCache.set(originalLink, {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    });
+    return {
+      link,
+      intrinsicSize: aspectRatio,
+      type,
+      sandbox: { allowSameOrigin },
+    };
+  }
+
+  const soundCloudLink = parseSoundCloudLink(link);
+  if (soundCloudLink) {
+    type = soundCloudLink.type;
+    link = soundCloudLink.embedLink;
     aspectRatio = { w: 560, h: 315 };
     embeddedLinkCache.set(originalLink, {
       link,
@@ -482,6 +682,11 @@ export const maybeParseEmbedSrc = (str: string): string => {
     return redditMatch[1];
   }
 
+  const instagramMatch = str.match(RE_INSTAGRAM_EMBED);
+  if (instagramMatch && instagramMatch.length === 2) {
+    return instagramMatch[1];
+  }
+
   const gistMatch = str.match(RE_GH_GIST_EMBED);
   if (gistMatch && gistMatch.length === 2) {
     return gistMatch[1];
@@ -489,6 +694,11 @@ export const maybeParseEmbedSrc = (str: string): string => {
 
   if (RE_GIPHY.test(str)) {
     return `https://giphy.com/embed/${RE_GIPHY.exec(str)![1]}`;
+  }
+
+  const iframeMatch = str.match(RE_GENERIC_IFRAME_SRC);
+  if (iframeMatch && iframeMatch.length === 2) {
+    return iframeMatch[1];
   }
 
   const match = str.match(RE_GENERIC_EMBED);

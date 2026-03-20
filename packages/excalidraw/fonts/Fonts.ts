@@ -33,13 +33,17 @@ import type { Scene } from "@excalidraw/element";
 
 import { CascadiaFontFaces } from "./Cascadia";
 import { ComicShannsFontFaces } from "./ComicShanns";
+import { CreepsterFontFaces } from "./Creepster";
 import { EmojiFontFaces } from "./Emoji";
 import { ExcalidrawFontFace } from "./ExcalidrawFontFace";
 import { ExcalifontFontFaces } from "./Excalifont";
 import { HelveticaFontFaces } from "./Helvetica";
+import { InterFontFaces } from "./Inter";
 import { LiberationFontFaces } from "./Liberation";
 import { LilitaFontFaces } from "./Lilita";
+import { BangersFontFaces } from "./Bangers";
 import { NunitoFontFaces } from "./Nunito";
+import { PacificoFontFaces } from "./Pacifico";
 import { VirgilFontFaces } from "./Virgil";
 import { XiaolaiFontFaces } from "./Xiaolai";
 
@@ -391,6 +395,10 @@ export class Fonts {
     init("Liberation Sans", ...LiberationFontFaces);
     init("Lilita One", ...LilitaFontFaces);
     init("Nunito", ...NunitoFontFaces);
+    init("Inter", ...InterFontFaces);
+    init("Pacifico", ...PacificoFontFaces);
+    init("Creepster", ...CreepsterFontFaces);
+    init("Bangers", ...BangersFontFaces);
     init("Virgil", ...VirgilFontFaces);
 
     // fallback font faces

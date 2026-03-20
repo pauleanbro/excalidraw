@@ -33,7 +33,6 @@ import { actionToggleZenMode } from "../actions";
 
 import { alignActionsPredicate } from "../actions/actionAlign";
 import { trackEvent } from "../analytics";
-import { useTunnels } from "../context/tunnels";
 
 import { t } from "../i18n";
 import {
@@ -70,13 +69,12 @@ import {
   EmbedIcon,
   extraToolsIcon,
   frameToolIcon,
-  mermaidLogoIcon,
   laserPointerToolIcon,
-  MagicIcon,
   LassoIcon,
   sharpArrowIcon,
   roundArrowIcon,
   elbowArrowIcon,
+  socialButtonToolIcon,
   TextSizeIcon,
   adjustmentsIcon,
   DotsHorizontalIcon,
@@ -1075,8 +1073,7 @@ export const ShapesSwitcher = ({
     app.state.preferredSelectionTool.type !== "lasso";
 
   const embeddableToolSelected = activeTool.type === "embeddable";
-
-  const { TTDDialogTriggerTunnel } = useTunnels();
+  const socialButtonDialogOpen = app.state.openDialog?.name === "socialButton";
 
   return (
     <>
@@ -1188,6 +1185,7 @@ export const ShapesSwitcher = ({
             "App-toolbar__extra-tools-trigger--selected":
               frameToolSelected ||
               embeddableToolSelected ||
+              socialButtonDialogOpen ||
               lassoToolSelected ||
               // in collab we're already highlighting the laser button
               // outside toolbar, so let's not highlight extra-tools button
@@ -1204,6 +1202,8 @@ export const ShapesSwitcher = ({
             ? frameToolIcon
             : embeddableToolSelected
             ? EmbedIcon
+            : socialButtonDialogOpen
+            ? socialButtonToolIcon
             : laserToolSelected && !app.props.isCollaborating
             ? laserPointerToolIcon
             : lassoToolSelected
@@ -1233,6 +1233,14 @@ export const ShapesSwitcher = ({
             {t("toolBar.embeddable")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
+            onSelect={() => app.setOpenDialog({ name: "socialButton" })}
+            icon={socialButtonToolIcon}
+            data-testid="toolbar-social-button"
+            selected={socialButtonDialogOpen}
+          >
+            {t("toolBar.socialButton")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
             data-testid="toolbar-laser"
@@ -1249,27 +1257,6 @@ export const ShapesSwitcher = ({
               selected={lassoToolSelected}
             >
               {t("toolBar.lasso")}
-            </DropdownMenu.Item>
-          )}
-          <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
-            Generate
-          </div>
-          {app.props.aiEnabled !== false && <TTDDialogTriggerTunnel.Out />}
-          <DropdownMenu.Item
-            onSelect={() => app.setOpenDialog({ name: "ttd", tab: "mermaid" })}
-            icon={mermaidLogoIcon}
-            data-testid="toolbar-embeddable"
-          >
-            {t("toolBar.mermaidToExcalidraw")}
-          </DropdownMenu.Item>
-          {app.props.aiEnabled !== false && app.plugins.diagramToCode && (
-            <DropdownMenu.Item
-              onSelect={() => app.onMagicframeToolSelect()}
-              icon={MagicIcon}
-              data-testid="toolbar-magicframe"
-              badge={<DropdownMenu.Item.Badge>AI</DropdownMenu.Item.Badge>}
-            >
-              {t("toolBar.magicframe")}
             </DropdownMenu.Item>
           )}
         </DropdownMenu.Content>
