@@ -944,6 +944,7 @@ const ExcalidrawWrapper = () => {
         detectScroll={false}
         handleKeyboardGlobally={true}
         autoFocus={true}
+        allowTemplates={true}
         theme={editorTheme}
         renderTopRightUI={() => null}
         onLinkOpen={(element, event) => {

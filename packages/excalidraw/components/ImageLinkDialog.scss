@@ -1,0 +1,169 @@
+@use "../css/variables.module" as *;
+
+.ImageLinkDialog {
+  width: 260px;
+  max-height: calc(100vh - 166px);
+  overflow-y: auto;
+}
+
+.ImageLinkDialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ImageLinkDialog__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary-color);
+}
+
+.ImageLinkDialog__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-primary-color);
+  border-radius: var(--border-radius-md);
+  padding: 0;
+
+  &:hover {
+    background: var(--button-hover-bg);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.ImageLinkDialog__description {
+  margin-bottom: 12px;
+  color: var(--text-primary-color);
+  font-size: 0.8rem;
+}
+
+.ImageLinkDialog__label {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.ImageLinkDialog__row {
+  margin-top: 12px;
+}
+
+.ImageLinkDialog__error {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}
+
+.ImageLinkDialog__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 12px -12px 0 -12px;
+
+  .Dialog__action-button {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 10px;
+    min-height: 44px;
+    justify-content: center;
+    border-radius: 0;
+  }
+}
+
+.ImageLinkDialog__divider {
+  margin: 0 -12px;
+  border-top: 1px solid var(--default-border-color);
+}
+
+.ImageLinkDialog__uploadOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 8px;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(
+      in srgb,
+      var(--color-primary) 6%,
+      transparent
+    );
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.ImageLinkDialog__uploadIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+  flex-shrink: 0;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.ImageLinkDialog__uploadText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ImageLinkDialog__uploadTitle {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary-color);
+}
+
+.ImageLinkDialog__uploadSubtitle {
+  font-size: 0.7rem;
+  color: var(--text-primary-color);
+  opacity: 0.6;
+}
+
+.ImageLinkDialog__premiumBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #f0c27f, #e8a849);
+  color: #5c3d14;
+  flex-shrink: 0;
+}

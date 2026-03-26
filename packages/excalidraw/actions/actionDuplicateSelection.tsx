@@ -41,6 +41,25 @@ export const actionDuplicateSelection = register({
       return false;
     }
 
+    // check element limit
+    const max = app.props.maxElements;
+    if (max != null && max > 0) {
+      const count = getNonDeletedElements(elements).length;
+      if (count >= max) {
+        return {
+          appState: {
+            ...appState,
+            toast: {
+              message: t("maxElementsReached", { max }),
+              closable: true,
+              duration: 4000,
+            },
+          },
+          captureUpdate: CaptureUpdateAction.NEVER,
+        };
+      }
+    }
+
     // duplicate selected point(s) if editing a line
     if (appState.selectedLinearElement?.isEditing) {
       // TODO: Invariants should be checked here instead of duplicateSelectedPoints()

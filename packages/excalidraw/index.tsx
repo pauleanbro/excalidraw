@@ -98,6 +98,10 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     aiEnabled,
     showDeprecatedFonts,
     renderScrollbars,
+    allowTemplates,
+    templateData,
+    maxElements,
+    unsplashAccessKey,
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
@@ -208,6 +212,10 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           aiEnabled={aiEnabled !== false}
           showDeprecatedFonts={showDeprecatedFonts}
           renderScrollbars={renderScrollbars}
+          allowTemplates={allowTemplates}
+          templateData={templateData}
+          maxElements={maxElements}
+          unsplashAccessKey={unsplashAccessKey}
         >
           {children}
         </App>
@@ -367,6 +375,10 @@ export { DefaultSidebar } from "./components/DefaultSidebar";
 export { TTDDialog } from "./components/TTDDialog/TTDDialog";
 export { TTDDialogTrigger } from "./components/TTDDialog/TTDDialogTrigger";
 export { TTDStreamFetch } from "./components/TTDDialog/utils/TTDStreamFetch";
+export {
+  AvatarFramePreview,
+  SocialRowPreview,
+} from "./components/TemplatePreviews";
 export type {
   TTDPersistenceAdapter,
   SavedChat,

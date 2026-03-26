@@ -325,6 +325,8 @@
     "magicframe": "Wireframe para código",
     "embeddable": "Página web incorporada",
     "socialButton": "Botão social",
+    "templates": "Templates",
+    "unsplash": "Fotos Unsplash",
     "laser": "Ponteiro de laser",
     "hand": "Mão (ferramenta de rolagem)",
     "extraTools": "Mais ferramentas",
@@ -412,6 +414,51 @@
     "color": "Cor do ícone",
     "add": "Adicionar no canvas",
     "copied": "Copiado para a área de transferência"
+  },
+  "imageLink": {
+    "title": "Inserir imagem",
+    "description": "Cole a URL de uma imagem para adicioná-la ao canvas.",
+    "urlLabel": "URL da imagem",
+    "urlPlaceholder": "https://exemplo.com/imagem.png",
+    "add": "Adicionar no canvas",
+    "error": "Falha ao carregar imagem da URL.",
+    "uploadTitle": "Upload do dispositivo",
+    "uploadSubtitle": "Envie um arquivo de imagem do seu computador.",
+    "uploadPremium": "Disponível para usuários PRO."
+  },
+  "maxElementsReached": "Limite de elementos atingido ({{max}}). Remova elementos existentes para adicionar novos.",
+  "unsplash": {
+    "title": "Fotos Unsplash",
+    "description": "Pesquise fotos gratuitas em alta resolução.",
+    "searchPlaceholder": "Pesquisar fotos...",
+    "loading": "Carregando...",
+    "noResults": "Nenhuma foto encontrada.",
+    "error": "Falha ao pesquisar fotos.",
+    "insertError": "Falha ao inserir foto.",
+    "noApiKey": "Chave da API Unsplash não configurada.",
+    "by": "por",
+    "inserting": "Inserindo...",
+    "poweredBy": "Powered by Unsplash"
+  },
+  "templates": {
+    "title": "Templates",
+    "description": "Elementos prontos para sua página.",
+    "inserting": "Inserindo...",
+    "premiumDescription": "Templates disponíveis para usuários PRO.",
+    "avatarFrame": {
+      "label": "Avatar Frame",
+      "description": "Card com avatar, nome e selo de verificação."
+    },
+    "socialRow": {
+      "label": "Social Row",
+      "description": "Linha horizontal de ícones de redes sociais.",
+      "pickerTitle": "Escolha as redes",
+      "pickerDescription": "Selecione as redes sociais para incluir.",
+      "next": "Próximo →",
+      "urlTitle": "Adicione seus links",
+      "urlDescription": "Informe a URL de cada rede. Deixe em branco para pular.",
+      "insert": "Inserir Social Row"
+    }
   },
   "roomDialog": {
     "desc_intro": "Convide pessoas para colaborar em seu desenho.",

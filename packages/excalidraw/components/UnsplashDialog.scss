@@ -1,0 +1,182 @@
+@use "../css/variables.module" as *;
+
+.UnsplashDialog {
+  width: 280px;
+  max-height: calc(100vh - 166px);
+  overflow-y: auto;
+}
+
+.UnsplashDialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.UnsplashDialog__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary-color);
+}
+
+.UnsplashDialog__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-primary-color);
+  border-radius: var(--border-radius-md);
+  padding: 0;
+
+  &:hover {
+    background: var(--button-hover-bg);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.UnsplashDialog__description {
+  margin-bottom: 8px;
+  color: var(--text-primary-color);
+  font-size: 0.75rem;
+}
+
+.UnsplashDialog__searchRow {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.UnsplashDialog__searchIcon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--text-primary-color);
+  opacity: 0.5;
+  pointer-events: none;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.UnsplashDialog__searchInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 8px 7px 30px;
+  border: 1px solid var(--default-border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--input-bg-color, var(--island-bg-color));
+  color: var(--text-primary-color);
+  font-size: 0.8125rem;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+
+  &::placeholder {
+    color: var(--text-primary-color);
+    opacity: 0.4;
+  }
+}
+
+.UnsplashDialog__error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+  margin: 4px 0;
+}
+
+.UnsplashDialog__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.UnsplashDialog__loading,
+.UnsplashDialog__empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 0.75rem;
+  color: var(--text-primary-color);
+  opacity: 0.6;
+}
+
+.UnsplashDialog__photoCard {
+  position: relative;
+  border: 1px solid var(--default-border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+  aspect-ratio: 1;
+  transition: border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.UnsplashDialog__photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.UnsplashDialog__photoOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.UnsplashDialog__photoCredit {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  color: #fff;
+  font-size: 0.6rem;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.UnsplashDialog__attribution {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 0.625rem;
+  color: var(--text-primary-color);
+  opacity: 0.4;
+}

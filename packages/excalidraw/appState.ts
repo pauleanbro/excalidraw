@@ -147,7 +147,7 @@ const APP_STATE_STORAGE_CONF = (<
 >(config: { [K in keyof T]: K extends keyof AppState ? T[K] : never }) =>
   config)({
   showWelcomeScreen: { browser: true, export: false, server: false },
-  theme: { browser: true, export: false, server: false },
+  theme: { browser: true, export: false, server: true },
   collaborators: { browser: false, export: false, server: false },
   currentItemBackgroundColor: { browser: true, export: false, server: false },
   currentItemEndArrowhead: { browser: true, export: false, server: false },

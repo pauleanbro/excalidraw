@@ -3780,6 +3780,22 @@ class App extends React.Component<AppProps, AppState> {
       }
     }
 
+    // ------------------- Image URLs (pasted as text) -------------------
+    if (!isPlainPaste && data.text && this.isToolSupported("image")) {
+      const trimmedText = data.text.trim();
+      if (/^https?:\/\/.+\.(png|jpe?g|gif|webp|svg|bmp|ico)(\?.*)?$/i.test(trimmedText)) {
+        try {
+          const file = await ImageURLToFile(trimmedText);
+          if (file) {
+            await this.insertImages([file], sceneX, sceneY);
+            return;
+          }
+        } catch {
+          // not a valid image, fall through to other handlers
+        }
+      }
+    }
+
     // ------------------- Pure embeddable URLs -------------------
     const nonEmptyLines = normalizeEOL(data.text)
       .split(/\n+/)
@@ -3889,6 +3905,9 @@ class App extends React.Component<AppProps, AppState> {
     retainSeed?: boolean;
     fitToContent?: boolean;
   }) => {
+    if (this.isElementLimitReached()) {
+      return;
+    }
     const elements = restoreElements(opts.elements, null, {
       deleteInvisibleElements: true,
     });
@@ -4463,6 +4482,26 @@ class App extends React.Component<AppProps, AppState> {
 
   setToast = (toast: AppState["toast"]) => {
     this.setState({ toast });
+  };
+
+  /**
+   * Returns true (and shows a toast) when the non-deleted element count
+   * has reached the `maxElements` prop limit.
+   */
+  private isElementLimitReached = (): boolean => {
+    const max = this.props.maxElements;
+    if (max != null && max > 0) {
+      const count = this.scene.getNonDeletedElements().length;
+      if (count >= max) {
+        this.setToast({
+          message: t("maxElementsReached", { max }),
+          closable: true,
+          duration: 4000,
+        });
+        return true;
+      }
+    }
+    return false;
   };
 
   restoreFileFromShare = async () => {
@@ -5523,7 +5562,8 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ suggestedBinding: null });
     }
     if (nextActiveTool.type === "image") {
-      this.onImageToolbarButtonClick();
+      this.setOpenDialog({ name: "imageLink" });
+      return;
     }
 
     this.setState((prevState) => {
@@ -6711,8 +6751,18 @@ class App extends React.Component<AppProps, AppState> {
     event: PointerEvent,
   ) => {
     const payload = this.getSocialButtonPayload(element);
-    if (!payload || !this.state.viewModeEnabled) {
+    if (!payload) {
       return false;
+    }
+
+    if (!this.state.viewModeEnabled) {
+      // In edit mode, only clipboard on already-selected elements
+      if (
+        payload.actionType !== "clipboard" ||
+        !this.state.selectedElementIds[element.id]
+      ) {
+        return false;
+      }
     }
 
     if (payload.actionType === "clipboard") {
@@ -7306,6 +7356,13 @@ class App extends React.Component<AppProps, AppState> {
         this.state,
         this.scene.getNonDeletedElementsMap(),
       );
+    } else if (
+      this.state.viewModeEnabled &&
+      hitElementMightBeLocked &&
+      this.getSocialButtonPayload(hitElementMightBeLocked)?.actionType ===
+        "clipboard"
+    ) {
+      setCursor(this.interactiveCanvas, CURSOR_TYPE.POINTER);
     } else {
       hideHyperlinkToolip();
       if (isLaserTool) {
@@ -7925,32 +7982,40 @@ class App extends React.Component<AppProps, AppState> {
         pointerDownState.hit.wasAddedToSelection = true;
       }
     } else if (this.state.activeTool.type === "text") {
-      this.handleTextOnPointerDown(event, pointerDownState);
+      if (!this.isElementLimitReached()) {
+        this.handleTextOnPointerDown(event, pointerDownState);
+      }
     } else if (
       this.state.activeTool.type === "arrow" ||
       this.state.activeTool.type === "line"
     ) {
-      this.handleLinearElementOnPointerDown(
-        event,
-        this.state.activeTool.type,
-        pointerDownState,
-      );
+      if (!this.isElementLimitReached()) {
+        this.handleLinearElementOnPointerDown(
+          event,
+          this.state.activeTool.type,
+          pointerDownState,
+        );
+      }
     } else if (this.state.activeTool.type === "freedraw") {
-      this.handleFreeDrawElementOnPointerDown(
-        event,
-        this.state.activeTool.type,
-        pointerDownState,
-      );
+      if (!this.isElementLimitReached()) {
+        this.handleFreeDrawElementOnPointerDown(
+          event,
+          this.state.activeTool.type,
+          pointerDownState,
+        );
+      }
     } else if (this.state.activeTool.type === "custom") {
       setCursorForShape(this.interactiveCanvas, this.state);
     } else if (
       this.state.activeTool.type === TOOL_TYPE.frame ||
       this.state.activeTool.type === TOOL_TYPE.magicframe
     ) {
-      this.createFrameElementOnPointerDown(
-        pointerDownState,
-        this.state.activeTool.type,
-      );
+      if (!this.isElementLimitReached()) {
+        this.createFrameElementOnPointerDown(
+          pointerDownState,
+          this.state.activeTool.type,
+        );
+      }
     } else if (this.state.activeTool.type === "laser") {
       this.laserTrails.startPath(
         pointerDownState.lastCoords.x,
@@ -7961,10 +8026,12 @@ class App extends React.Component<AppProps, AppState> {
       this.state.activeTool.type !== "hand" &&
       this.state.activeTool.type !== "image"
     ) {
-      this.createGenericElementOnPointerDown(
-        this.state.activeTool.type,
-        pointerDownState,
-      );
+      if (!this.isElementLimitReached()) {
+        this.createGenericElementOnPointerDown(
+          this.state.activeTool.type,
+          pointerDownState,
+        );
+      }
     }
 
     this.props?.onPointerDown?.(this.state.activeTool, pointerDownState);
@@ -8061,6 +8128,30 @@ class App extends React.Component<AppProps, AppState> {
     ) {
       this.handleElementLinkClick(event);
     } else if (this.state.viewModeEnabled) {
+      // Handle clipboard social buttons in view mode
+      const draggedDistance = pointDistance(
+        pointFrom(
+          this.lastPointerDownEvent!.clientX,
+          this.lastPointerDownEvent!.clientY,
+        ),
+        pointFrom(
+          this.lastPointerUpEvent!.clientX,
+          this.lastPointerUpEvent!.clientY,
+        ),
+      );
+      if (draggedDistance <= DRAGGING_THRESHOLD) {
+        const hitElement = this.getElementAtPosition(
+          scenePointer.x,
+          scenePointer.y,
+          { includeLockedElements: true },
+        );
+        if (
+          hitElement &&
+          this.handleSocialButtonClick(hitElement, event.nativeEvent)
+        ) {
+          return;
+        }
+      }
       this.setState({
         activeEmbeddable: null,
         selectedElementIds: {},
@@ -8987,6 +9078,9 @@ class App extends React.Component<AppProps, AppState> {
     sceneY: number;
     link: string;
   }) => {
+    if (this.isElementLimitReached()) {
+      return;
+    }
     const [gridX, gridY] = getGridPoint(
       sceneX,
       sceneY,
@@ -9048,6 +9142,9 @@ class App extends React.Component<AppProps, AppState> {
     sceneX?: number;
     sceneY?: number;
   }) => {
+    if (this.isElementLimitReached()) {
+      return null;
+    }
     const normalizedValue = value.trim();
     if (!normalizedValue) {
       return null;
@@ -9127,6 +9224,32 @@ class App extends React.Component<AppProps, AppState> {
     }));
 
     return element;
+  };
+
+  public insertImageFromURL = async ({ url }: { url: string }) => {
+    if (this.isElementLimitReached()) {
+      return;
+    }
+    const file = await ImageURLToFile(url);
+    if (!file) {
+      throw new Error("Failed to load image from URL");
+    }
+
+    const clientX = this.state.width / 2 + this.state.offsetLeft;
+    const clientY = this.state.height / 2 + this.state.offsetTop;
+    const { x, y } = viewportCoordsToSceneCoords(
+      { clientX, clientY },
+      this.state,
+    );
+
+    await this.insertImages([file], x, y);
+  };
+
+  public onImageUploadClick = async () => {
+    if (this.isElementLimitReached()) {
+      return;
+    }
+    await this.onImageToolbarButtonClick();
   };
 
   private newImagePlaceholder = ({
@@ -10142,6 +10265,9 @@ class App extends React.Component<AppProps, AppState> {
 
           // We duplicate the selected element if alt is pressed on pointer move
           if (event.altKey && !pointerDownState.hit.hasBeenDuplicated) {
+            if (this.isElementLimitReached()) {
+              return;
+            }
             // Move the currently selected elements to the top of the z index stack, and
             // put the duplicates where the selected elements used to be.
             // (the origin point where the dragging started)

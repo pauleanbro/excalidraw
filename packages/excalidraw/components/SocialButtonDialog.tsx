@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-
-import { KEYS } from "@excalidraw/common";
 
 import {
   SiBehance,
@@ -25,10 +23,15 @@ import {
   SiYoutube,
 } from "@icons-pack/react-simple-icons";
 
+import { KEYS } from "@excalidraw/common";
+
 import { t } from "../i18n";
+import { useOutsideClick } from "../hooks/useOutsideClick";
 
 import DialogActionButton from "./DialogActionButton";
 import { TextField } from "./TextField";
+import { Island } from "./Island";
+import { CloseIcon } from "./icons";
 
 import "./SocialButtonDialog.scss";
 
@@ -129,29 +132,34 @@ export const SocialButtonDialog = ({
     value,
   ]);
 
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(panelRef, onClose);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (app.state.openDialog?.name !== "socialButton") {
-        return;
-      }
-      if (event.key === KEYS.ENTER) {
-        void handleSubmit();
-      }
       if (event.key === KEYS.ESCAPE) {
         onClose();
       }
     };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [app.state.openDialog, handleSubmit, onClose]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   return (
-    <div className="SocialButtonDialog">
+    <Island ref={panelRef} padding={3} className="SocialButtonDialog">
       <div className="SocialButtonDialog__header">
-        <h2>{t("socialButton.title")}</h2>
+        <h2 className="SocialButtonDialog__title">
+          {t("socialButton.title")}
+        </h2>
+        <button
+          type="button"
+          className="SocialButtonDialog__close"
+          onClick={onClose}
+          aria-label={t("buttons.close")}
+        >
+          {CloseIcon}
+        </button>
       </div>
       <div className="SocialButtonDialog__description">
         {t("socialButton.description")}
@@ -174,7 +182,7 @@ export const SocialButtonDialog = ({
               data-selected={selected}
               onClick={() => setSelectedIconId(option.id)}
             >
-              <Icon size={20} color={selected ? "#ffffff" : "currentColor"} />
+              <Icon size={20} color="currentColor" />
               <span>{option.label}</span>
             </button>
           );
@@ -252,6 +260,6 @@ export const SocialButtonDialog = ({
           onClick={handleSubmit}
         />
       </div>
-    </div>
+    </Island>
   );
 };

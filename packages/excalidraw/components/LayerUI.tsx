@@ -61,6 +61,9 @@ import { Island } from "./Island";
 import { JSONExportDialog } from "./JSONExportDialog";
 import { LaserPointerButton } from "./LaserPointerButton";
 import { SocialButtonDialog } from "./SocialButtonDialog";
+import { ImageLinkDialog } from "./ImageLinkDialog";
+import { UnsplashDialog } from "./UnsplashDialog";
+import TemplatesDialog from "./TemplatesDialog";
 import { Toast } from "./Toast";
 
 import "./LayerUI.scss";
@@ -282,10 +285,15 @@ const LayerUI = ({
   };
 
   const renderFixedSideContainer = () => {
-    const shouldRenderSelectedShapeActions = showSelectedShapeActions(
-      appState,
-      elements,
-    );
+    const isCustomDialogOpen =
+      appState.openDialog?.name === "socialButton" ||
+      appState.openDialog?.name === "imageLink" ||
+      appState.openDialog?.name === "unsplash" ||
+      appState.openDialog?.name === "templates";
+
+    const shouldRenderSelectedShapeActions =
+      !isCustomDialogOpen &&
+      showSelectedShapeActions(appState, elements);
 
     const shouldShowStats =
       appState.stats.open &&
@@ -309,6 +317,30 @@ const LayerUI = ({
             >
               {shouldRenderSelectedShapeActions && renderSelectedShapeActions()}
             </div>
+            {appState.openDialog?.name === "socialButton" && (
+              <SocialButtonDialog
+                app={app}
+                onClose={() => setAppState({ openDialog: null })}
+              />
+            )}
+            {appState.openDialog?.name === "imageLink" && (
+              <ImageLinkDialog
+                app={app}
+                onClose={() => setAppState({ openDialog: null })}
+              />
+            )}
+            {appState.openDialog?.name === "unsplash" && (
+              <UnsplashDialog
+                app={app}
+                onClose={() => setAppState({ openDialog: null })}
+              />
+            )}
+            {appState.openDialog?.name === "templates" && (
+              <TemplatesDialog
+                app={app}
+                onClose={() => setAppState({ openDialog: null })}
+              />
+            )}
           </Stack.Col>
           {!appState.viewModeEnabled &&
             appState.openDialog?.name !== "elementLinkSelector" && (
@@ -528,12 +560,6 @@ const LayerUI = ({
           onClose={() => {
             setAppState({ openDialog: null });
           }}
-        />
-      )}
-      {appState.openDialog?.name === "socialButton" && (
-        <SocialButtonDialog
-          app={app}
-          onClose={() => setAppState({ openDialog: null })}
         />
       )}
       <ActiveConfirmDialog />

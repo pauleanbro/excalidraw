@@ -75,6 +75,8 @@ import {
   roundArrowIcon,
   elbowArrowIcon,
   socialButtonToolIcon,
+  templatesToolIcon,
+  unsplashToolIcon,
   TextSizeIcon,
   adjustmentsIcon,
   DotsHorizontalIcon,
@@ -1074,6 +1076,9 @@ export const ShapesSwitcher = ({
 
   const embeddableToolSelected = activeTool.type === "embeddable";
   const socialButtonDialogOpen = app.state.openDialog?.name === "socialButton";
+  const templatesDialogOpen = app.state.openDialog?.name === "templates";
+  const allowTemplates = app.props.allowTemplates ?? false;
+  const unsplashDialogOpen = app.state.openDialog?.name === "unsplash";
 
   return (
     <>
@@ -1166,9 +1171,7 @@ export const ShapesSwitcher = ({
                   trackEvent("toolbar", value, "ui");
                 }
                 if (value === "image") {
-                  app.setActiveTool({
-                    type: value,
-                  });
+                  app.setOpenDialog({ name: "imageLink" });
                 } else {
                   app.setActiveTool({ type: value });
                 }
@@ -1186,6 +1189,7 @@ export const ShapesSwitcher = ({
               frameToolSelected ||
               embeddableToolSelected ||
               socialButtonDialogOpen ||
+              unsplashDialogOpen ||
               lassoToolSelected ||
               // in collab we're already highlighting the laser button
               // outside toolbar, so let's not highlight extra-tools button
@@ -1204,6 +1208,8 @@ export const ShapesSwitcher = ({
             ? EmbedIcon
             : socialButtonDialogOpen
             ? socialButtonToolIcon
+            : unsplashDialogOpen
+            ? unsplashToolIcon
             : laserToolSelected && !app.props.isCollaborating
             ? laserPointerToolIcon
             : lassoToolSelected
@@ -1233,12 +1239,31 @@ export const ShapesSwitcher = ({
             {t("toolBar.embeddable")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
+            onSelect={() => app.setOpenDialog({ name: "templates" })}
+            icon={templatesToolIcon}
+            data-testid="toolbar-templates"
+            selected={templatesDialogOpen}
+          >
+            {t("toolBar.templates")}
+            {!allowTemplates && (
+              <span className="extra-tools-dropdown__pro-badge">PRO</span>
+            )}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             onSelect={() => app.setOpenDialog({ name: "socialButton" })}
             icon={socialButtonToolIcon}
             data-testid="toolbar-social-button"
             selected={socialButtonDialogOpen}
           >
             {t("toolBar.socialButton")}
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
+            onSelect={() => app.setOpenDialog({ name: "unsplash" })}
+            icon={unsplashToolIcon}
+            data-testid="toolbar-unsplash"
+            selected={unsplashDialogOpen}
+          >
+            {t("toolBar.unsplash")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}

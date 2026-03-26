@@ -325,6 +325,8 @@
     "magicframe": "Wireframe to code",
     "embeddable": "Web Embed",
     "socialButton": "Social button",
+    "templates": "Templates",
+    "unsplash": "Unsplash photos",
     "laser": "Laser pointer",
     "hand": "Hand (panning tool)",
     "extraTools": "More tools",
@@ -412,6 +414,51 @@
     "color": "Icon color",
     "add": "Add to canvas",
     "copied": "Copied to clipboard"
+  },
+  "imageLink": {
+    "title": "Insert image",
+    "description": "Paste an image URL to add it to the canvas.",
+    "urlLabel": "Image URL",
+    "urlPlaceholder": "https://example.com/image.png",
+    "add": "Add to canvas",
+    "error": "Failed to load image from URL.",
+    "uploadTitle": "Upload from device",
+    "uploadSubtitle": "Upload an image file from your computer.",
+    "uploadPremium": "Available for PRO users."
+  },
+  "maxElementsReached": "Element limit reached ({{max}}). Remove existing elements to add new ones.",
+  "unsplash": {
+    "title": "Unsplash Photos",
+    "description": "Search free high-resolution photos.",
+    "searchPlaceholder": "Search photos...",
+    "loading": "Loading...",
+    "noResults": "No photos found.",
+    "error": "Failed to search photos.",
+    "insertError": "Failed to insert photo.",
+    "noApiKey": "Unsplash API key not configured.",
+    "by": "by",
+    "inserting": "Inserting...",
+    "poweredBy": "Powered by Unsplash"
+  },
+  "templates": {
+    "title": "Templates",
+    "description": "Ready-made elements for your page.",
+    "inserting": "Inserting...",
+    "premiumDescription": "Templates are available for PRO users.",
+    "avatarFrame": {
+      "label": "Avatar Frame",
+      "description": "Card with avatar, name and verification badge."
+    },
+    "socialRow": {
+      "label": "Social Row",
+      "description": "Horizontal row of social media icons.",
+      "pickerTitle": "Choose networks",
+      "pickerDescription": "Select the social networks to include.",
+      "next": "Next →",
+      "urlTitle": "Add your links",
+      "urlDescription": "Enter the URL for each network. Leave blank to skip.",
+      "insert": "Insert Social Row"
+    }
   },
   "roomDialog": {
     "desc_intro": "Invite people to collaborate on your drawing.",

@@ -132,6 +132,8 @@ export const MobileToolBar = ({
       } else {
         app.setActiveTool({ type: "selection" });
       }
+    } else if (toolType === "image") {
+      app.setOpenDialog({ name: "imageLink" });
     } else {
       app.setActiveTool({ type: toolType as ToolType });
     }
@@ -417,7 +419,7 @@ export const MobileToolBar = ({
 
           {!showImageToolOutside && (
             <DropdownMenu.Item
-              onSelect={() => app.setActiveTool({ type: "image" })}
+              onSelect={() => app.setOpenDialog({ name: "imageLink" })}
               icon={ImageIcon}
               data-testid="toolbar-image"
               selected={activeTool.type === "image"}

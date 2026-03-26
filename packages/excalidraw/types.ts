@@ -387,7 +387,7 @@ export interface AppState {
   openSidebar: { name: SidebarName; tab?: SidebarTabName } | null;
   openDialog:
     | null
-    | { name: "imageExport" | "help" | "jsonExport" | "socialButton" }
+    | { name: "imageExport" | "help" | "jsonExport" | "socialButton" | "imageLink" | "unsplash" | "templates" }
     | { name: "ttd"; tab: "text-to-diagram" | "mermaid" }
     | { name: "commandPalette" }
     | { name: "settings" }
@@ -669,6 +669,28 @@ export interface ExcalidrawProps {
     appState: AppState,
   ) => JSX.Element | null;
   aiEnabled?: boolean;
+  /**
+   * When true, allows direct file upload for images.
+   * When false (default), only URL-based image insertion is available.
+   * Use this to gate image upload behind a premium plan.
+   */
+  allowImageUpload?: boolean;
+  unsplashAccessKey?: string;
+  /**
+   * Maximum number of non-deleted elements allowed on the canvas.
+   * When the limit is reached, new element creation is blocked and a toast is shown.
+   * Use this to gate element count behind a plan (e.g., free plan = 10).
+   */
+  maxElements?: number;
+  /**
+   * When true, the Templates feature is available.
+   * When false (default), templates show a PRO badge and insertion is blocked.
+   */
+  allowTemplates?: boolean;
+  templateData?: {
+    userName?: string;
+    userAvatarUrl?: string;
+  };
   showDeprecatedFonts?: boolean;
   renderScrollbars?: boolean;
   /**
@@ -808,6 +830,8 @@ export type AppClassProperties = {
   setOpenDialog: App["setOpenDialog"];
   insertEmbeddableElement: App["insertEmbeddableElement"];
   insertSocialButtonElement: App["insertSocialButtonElement"];
+  insertImageFromURL: App["insertImageFromURL"];
+  onImageUploadClick: App["onImageUploadClick"];
   onMagicframeToolSelect: App["onMagicframeToolSelect"];
   getName: App["getName"];
   dismissLinearEditor: App["dismissLinearEditor"];
