@@ -29,8 +29,8 @@ const NAV_ITEMS: readonly NavItem[] = [
   { label: "Perfis", href: "/dashboard/profiles", icon: Layers },
   { label: "Loja", href: "/dashboard/shop", icon: ShoppingBag, disabled: true, badge: "soon" },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Assinatura", href: "/dashboard/billing", icon: CreditCard, disabled: true, badge: "soon" },
-  { label: "Configurações", href: "/dashboard/settings", icon: Settings, disabled: true, badge: "soon" },
+  { label: "Assinatura", href: "/dashboard/billing", icon: CreditCard },
+  { label: "Configurações", href: "/dashboard/settings", icon: Settings },
 ] as const;
 
 type SidebarProps = {

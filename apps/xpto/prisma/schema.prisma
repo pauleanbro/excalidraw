@@ -26,6 +26,34 @@ model User {
   sessions      Session[]
   profiles      Profile[]
   profileViews  ProfileView[] @relation("ProfileViews")
+  subscriptions Subscription[]
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String
+  status             SubscriptionStatus @default(PENDING)
+  planInterval       String             // "monthly" | "yearly"
+  amountCents        Int
+  wooviSubscriptionId String?           @unique
+  wooviChargeId      String?            @unique
+  wooviCorrelationId String?            @unique
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([wooviCorrelationId])
+  @@index([wooviSubscriptionId])
 }
 
 enum ProfileStatus {

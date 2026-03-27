@@ -27,10 +27,18 @@ const BADGE_GAP = 4;
 
 /**
  * Fetches an image URL and returns a base64 data URL.
+ * If the input is already a data URL, returns it directly.
  */
 const fetchImageAsDataURL = async (
   url: string,
 ): Promise<{ dataURL: string; mimeType: string } | null> => {
+  if (url.startsWith("data:")) {
+    const mimeMatch = url.match(/^data:([^;,]+)/);
+    return {
+      dataURL: url,
+      mimeType: mimeMatch?.[1] || MIME_TYPES.png,
+    };
+  }
   try {
     const resp = await fetch(url);
     if (!resp.ok) {
@@ -84,9 +92,32 @@ export const createAvatarFrameTemplate = async (opts: {
   });
   elements.push(cardElement);
 
-  // ── 2. Avatar image (or placeholder) ──────────────────────
+  // ── 2. Measure name text to compute vertical centering ─────
+  const nameText = opts.userName || "Seu Nome";
+  const measureName = newTextElement({
+    text: nameText,
+    x: 0,
+    y: 0,
+    fontSize: NAME_FONT_SIZE,
+    fontFamily: FONT_FAMILY.Nunito,
+    textAlign: "center",
+    strokeColor: "#2f3b2c",
+    backgroundColor: "transparent",
+    fillStyle: "solid",
+    strokeWidth: 1,
+    strokeStyle: "solid",
+    roughness: 0,
+    opacity: 100,
+    roundness: null,
+    groupIds: [groupId],
+    locked: false,
+    customData: { premium: true },
+  });
+
+  const contentHeight =
+    AVATAR_SIZE + NAME_Y_BELOW_AVATAR + measureName.height;
+  const avatarY = (CARD_H - contentHeight) / 2;
   const avatarX = (CARD_W - AVATAR_SIZE) / 2;
-  const avatarY = AVATAR_Y_OFFSET;
   const avatarFileId = `tpl-avatar-${randomId()}` as FileId;
 
   let avatarReady = false;
@@ -150,11 +181,20 @@ export const createAvatarFrameTemplate = async (opts: {
   }
 
   // ── 3. User name text ─────────────────────────────────────
-  const nameText = opts.userName || "Seu Nome";
-  const nameElement = newTextElement({
+  // ── 4. Verification badge ─────────────────────────────────
+  const badgeFileId = `tpl-badge-${randomId()}` as FileId;
+  const badgeData = await fetchImageAsDataURL(opts.badgeUrl);
+
+  // Center the name+badge combo as a unit within the card
+  const comboWidth =
+    measureName.width + (badgeData ? BADGE_GAP + BADGE_SIZE : 0);
+  const comboX = (CARD_W - comboWidth) / 2;
+  const nameY = avatarY + AVATAR_SIZE + NAME_Y_BELOW_AVATAR;
+
+  const centeredNameElement = newTextElement({
     text: nameText,
-    x: CARD_W / 2 - (BADGE_SIZE + BADGE_GAP) / 2,
-    y: avatarY + AVATAR_SIZE + NAME_Y_BELOW_AVATAR,
+    x: comboX,
+    y: nameY,
     fontSize: NAME_FONT_SIZE,
     fontFamily: FONT_FAMILY.Nunito,
     textAlign: "center",
@@ -170,11 +210,7 @@ export const createAvatarFrameTemplate = async (opts: {
     locked: false,
     customData: { premium: true },
   });
-  elements.push(nameElement);
-
-  // ── 4. Verification badge ─────────────────────────────────
-  const badgeFileId = `tpl-badge-${randomId()}` as FileId;
-  const badgeData = await fetchImageAsDataURL(opts.badgeUrl);
+  elements.push(centeredNameElement);
 
   if (badgeData) {
     files.push({
@@ -185,10 +221,10 @@ export const createAvatarFrameTemplate = async (opts: {
       lastRetrieved: Date.now(),
     });
 
-    // Position badge right after the name text
-    const badgeX = nameElement.x + nameElement.width + BADGE_GAP;
+    const badgeX = comboX + measureName.width + BADGE_GAP;
     const badgeY =
-      nameElement.y + (nameElement.height - BADGE_SIZE) / 2;
+      centeredNameElement.y +
+      (centeredNameElement.height - BADGE_SIZE) / 2;
 
     const badgeElement = newImageElement({
       type: "image",

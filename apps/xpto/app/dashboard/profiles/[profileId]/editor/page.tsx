@@ -6,6 +6,20 @@ import { BRAND } from "@/config/brand";
 import { prisma } from "@/lib/prisma";
 import EditorShell from "@/components/EditorShell";
 
+async function fetchAvatarAsDataUrl(
+  url: string,
+): Promise<string | undefined> {
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return undefined;
+    const buf = Buffer.from(await resp.arrayBuffer());
+    const mime = resp.headers.get("content-type") || "image/png";
+    return `data:${mime};base64,${buf.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
 type EditorPageProps = {
   params: {
     profileId: string;
@@ -71,6 +85,10 @@ export default async function ProfileEditorPage({ params }: EditorPageProps) {
     files?: Record<string, unknown>;
   };
 
+  const userAvatarUrl = profile.user.image
+    ? await fetchAvatarAsDataUrl(profile.user.image)
+    : undefined;
+
   return (
     <>
       <Script id="excalidraw-assets" strategy="beforeInteractive">
@@ -82,7 +100,7 @@ export default async function ProfileEditorPage({ params }: EditorPageProps) {
         profileStatus={profile.status}
         userHandle={profile.user.handle ?? null}
         userName={profile.user.name ?? undefined}
-        userAvatarUrl={profile.user.image ?? undefined}
+        userAvatarUrl={userAvatarUrl}
         allowTemplates={profile.user.plan === "PRO"}
         unsplashAccessKey={process.env.UNSPLASH_ACCESS_KEY}
         initialScene={scenePayload}
